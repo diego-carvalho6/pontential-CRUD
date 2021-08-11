@@ -1,3 +1,4 @@
+from developers.models import Developer
 from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
@@ -8,22 +9,22 @@ from rest_framework import status
 
 class DeveloperViewsTest(TestCase):
     
-    # @classmethod
-    # def setUpTestData(cls):
+    @classmethod
+    def setUpTestData(cls):
         
-    #     cls.nome = "diego",
-    #     cls.sexo = "M",
-    #     cls.idade = 22,
-    #     cls.hobby = "estudar",
-    #     cls.datanascimento = "06/09/1999",
+        cls.nome = "diego",
+        cls.sexo = "M",
+        cls.idade = 22,
+        cls.hobby = "estudar",
+        cls.datanascimento = "06/09/1999",
         
-    #     cls.Developer = Developer.objects.create(
-    #         nome = cls.nome,
-    #         sexo = cls.sexo,
-    #         idade = cls.idade,
-    #         hobby = cls.hobby,
-    #         datanascimento = cls.datanascimento,
-    #     )
+        cls.Developer = Developer.objects.create(
+            nome = cls.nome,
+            sexo = cls.sexo,
+            idade = cls.idade,
+            hobby = cls.hobby,
+            datanascimento = cls.datanascimento,
+        )
 
     def test_developers_get_can_execute(self):
         client = APIClient()
@@ -44,13 +45,13 @@ class DeveloperViewsTest(TestCase):
         )
         response_result = response.json()
         
-        self.assertEquals({"nome": "diego", "sexo": "M", "idade": 22, "hobby": "estudar", "datanascimento": "06/09/1999"}, response_result)
+        self.assertEquals("diego", response_result["nome"])
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         
         response = client.get(
            '/developers/2', format="json"
         )
-        self.assertEquals({"error": "Not Found"}, response_result)
+        self.assertEquals("Not Found", response_result["detail"])
         self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
     
     def test_route_can_get_developer_with_query(self):
@@ -70,8 +71,8 @@ class DeveloperViewsTest(TestCase):
         )
         response_result = response.json()
         
-        self.assertEquals(0, len(response_result.get("results")))
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals("Not Found", len(response_result.get("detail")))
+        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
         
     def test_route_post_can_register_a_developer(self):
         client = APIClient()
@@ -99,7 +100,7 @@ class DeveloperViewsTest(TestCase):
     def test_route_put_can_update_developer(self):
         
         client = APIClient()
-        body = {"nome": "junior"}
+        body = {"nome": "junior", "sexo": "M", "idade": 22, "hobby": "estudar", "datanascimento": "06/09/1999"}
 
         response = client.put(
            '/developers/1', body, format="json"
