@@ -12,18 +12,18 @@ class DeveloperViewsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         
-        cls.nome = "diego",
-        cls.sexo = "M",
-        cls.idade = 22,
-        cls.hobby = "estudar",
-        cls.datanascimento = "06/09/1999",
+        cls.nome = "diego"
+        cls.sexo = "M"
+        cls.idade = 22
+        cls.hobby = "estudar"
+        cls.datanascimento = "1999-09-06"
         
-        cls.Developer = Developer.objects.create(
-            nome = cls.nome,
-            sexo = cls.sexo,
-            idade = cls.idade,
-            hobby = cls.hobby,
-            datanascimento = cls.datanascimento,
+        cls.developer = Developer.objects.create(
+            nome=cls.nome,
+            sexo=cls.sexo,
+            idade=cls.idade,
+            hobby=cls.hobby,
+            datanascimento=cls.datanascimento
         )
 
     def test_developers_get_can_execute(self):
@@ -48,32 +48,28 @@ class DeveloperViewsTest(TestCase):
         self.assertEquals("diego", response_result["nome"])
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         
-        response = client.get(
-           '/developers/2', format="json"
+        response2 = client.get(
+           '/developers/10', format="json"
         )
-        self.assertEquals("Not Found", response_result["detail"])
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+        
+        response_result = response2.json()
+        
+        self.assertEquals("Not found.", response_result["detail"])
+        self.assertEquals(response2.status_code, status.HTTP_404_NOT_FOUND)
     
     def test_route_can_get_developer_with_query(self):
         
         client = APIClient()
         
         response = client.get(
-           '/developers?nome=diego&sexo=M&idade=22&hobby=estudar&datanascimento=06%2F09%2F1999', format="json"
+           '/developers?limit=10&search=diego', format="json"
         )
         response_result = response.json()
         
         self.assertEquals(1, len(response_result.get("results")))
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         
-        response = client.get(
-           '/developers?nome=diego&sexo=M&idade=22&hobby=estudar&datanascimento=06%2F09%2F2000', format="json"
-        )
-        response_result = response.json()
-        
-        self.assertEquals("Not Found", len(response_result.get("detail")))
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
-        
+
     def test_route_post_can_register_a_developer(self):
         client = APIClient()
         body = {"nome": "diego", "sexo": "M", "idade": 22, "hobby": "estudar", "datanascimento": "06/09/1999"}
@@ -90,12 +86,12 @@ class DeveloperViewsTest(TestCase):
         
         body_wrong = {"name: diego"}
         
-        response = client.post(
-           '/developers', body, format="json"
+        response2 = client.post(
+           '/developers', body_wrong, format="json"
         )
         response_result = response.json()
         
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEquals(response2.status_code, status.HTTP_400_BAD_REQUEST)
         
     def test_route_put_can_update_developer(self):
         
@@ -126,16 +122,13 @@ class DeveloperViewsTest(TestCase):
         response = client.delete(
            '/developers/1', format="json"
         )
-        response_result = response.json()
-        
-        self.assertEquals("", response_result)
+
         self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
         
 
-        response = client.get(
+        response2 = client.get(
            '/developers/1', format="json"
         )
-        response_result = response.json()
-        
-        self.assertEquals(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        self.assertEquals(response2.status_code, status.HTTP_404_NOT_FOUND)
         

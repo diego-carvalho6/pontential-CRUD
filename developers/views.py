@@ -1,15 +1,13 @@
-from rest_framework import serializers
-from rest_framework.serializers import Serializer
 from developers.serializers import DeveloperModelSerializer, DeveloperSerializer
 from developers.models import Developer
 from developers.paginations import CustomPagination
 
 from rest_framework import status
+from rest_framework import generics
+from rest_framework import filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from rest_framework import generics
-from rest_framework import filters
 
 # Create your views here.
 
